@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,14 +7,22 @@ import { usePendingUserRoles } from '@/hooks/usePendingUserRoles';
 import { supabase } from '@/integrations/supabase/untypedClient';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 
 const JoinRequestForm = () => {
-  const [email, setEmail] = useState('');
+  const { user } = useAuth();
   const [fullName, setFullName] = useState('');
   const [selectedMadrasa, setSelectedMadrasa] = useState('');
   const [selectedRole, setSelectedRole] = useState<'teacher' | 'user'>('user');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createPendingRole } = usePendingUserRoles();
+
+  // Auto-fill user email if authenticated
+  useEffect(() => {
+    if (user?.email) {
+      setFullName(user.user_metadata?.full_name || '');
+    }
+  }, [user]);
 
   // Fetch all unique madrasa names
   const { data: madrasas } = useQuery({
@@ -36,7 +44,12 @@ const JoinRequestForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !fullName || !selectedMadrasa) {
+    if (!user) {
+      toast.error('براہ کرم پہلے اکاؤنٹ بنائیں');
+      return;
+    }
+
+    if (!fullName || !selectedMadrasa) {
       toast.error('تمام فیلڈز پُر کریں');
       return;
     }
@@ -45,7 +58,7 @@ const JoinRequestForm = () => {
 
     try {
       await createPendingRole.mutateAsync({
-        email,
+        email: user.email!,
         role: selectedRole,
         full_name: fullName,
         madrasa_name: selectedMadrasa
@@ -54,7 +67,6 @@ const JoinRequestForm = () => {
       toast.success('درخواست جمع کرا دی گئی! ایڈمن کی منظوری کا انتظار کریں');
       
       // Reset form
-      setEmail('');
       setFullName('');
       setSelectedMadrasa('');
       setSelectedRole('user');
@@ -64,6 +76,19 @@ const JoinRequestForm = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="space-y-4 text-center p-6">
+        <p className="text-muted-foreground">
+          موجودہ مدرسہ میں شامل ہونے کے لیے پہلے اکاؤنٹ بنانا ضروری ہے
+        </p>
+        <p className="text-sm text-muted-foreground">
+          براہ کرم اوپر "نیا مدرسہ" ٹیب سے اکاؤنٹ بنائیں
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -84,12 +109,14 @@ const JoinRequestForm = () => {
         <Input
           id="join-email"
           type="email"
-          placeholder="your@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
+          value={user.email || ''}
+          disabled
           dir="ltr"
+          className="bg-muted"
         />
+        <p className="text-xs text-muted-foreground">
+          آپ کا اکاؤنٹ ای میل استعمال ہو گی
+        </p>
       </div>
 
       <div className="space-y-2">
