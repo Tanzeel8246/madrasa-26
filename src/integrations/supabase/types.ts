@@ -14,16 +14,449 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      attendance: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          date: string
+          id: string
+          madrasa_name: string | null
+          noted_by: string | null
+          status: string
+          student_id: string | null
+          time: string | null
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          madrasa_name?: string | null
+          noted_by?: string | null
+          status: string
+          student_id?: string | null
+          time?: string | null
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          madrasa_name?: string | null
+          noted_by?: string | null
+          status?: string
+          student_id?: string | null
+          time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classes: {
+        Row: {
+          created_at: string
+          duration: string | null
+          id: string
+          level: string | null
+          madrasa_name: string | null
+          name: string
+          room: string | null
+          schedule: string | null
+          section: string | null
+          students_count: number | null
+          teacher_id: string | null
+          updated_at: string
+          year: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration?: string | null
+          id?: string
+          level?: string | null
+          madrasa_name?: string | null
+          name: string
+          room?: string | null
+          schedule?: string | null
+          section?: string | null
+          students_count?: number | null
+          teacher_id?: string | null
+          updated_at?: string
+          year?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration?: string | null
+          id?: string
+          level?: string | null
+          madrasa_name?: string | null
+          name?: string
+          room?: string | null
+          schedule?: string | null
+          section?: string | null
+          students_count?: number | null
+          teacher_id?: string | null
+          updated_at?: string
+          year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classes_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          level: string | null
+          madrasa_name: string | null
+          modules: number | null
+          progress: number | null
+          students_count: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          level?: string | null
+          madrasa_name?: string | null
+          modules?: number | null
+          progress?: number | null
+          students_count?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          level?: string | null
+          madrasa_name?: string | null
+          modules?: number | null
+          progress?: number | null
+          students_count?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      education_reports: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          created_by: string | null
+          date: string
+          father_name: string
+          id: string
+          madrasa_name: string | null
+          manzil: Json | null
+          remarks: string | null
+          sabak: Json | null
+          sabqi: Json | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          father_name: string
+          id?: string
+          madrasa_name?: string | null
+          manzil?: Json | null
+          remarks?: string | null
+          sabak?: Json | null
+          sabqi?: Json | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          father_name?: string
+          id?: string
+          madrasa_name?: string | null
+          manzil?: Json | null
+          remarks?: string | null
+          sabak?: Json | null
+          sabqi?: Json | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_reports_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "education_reports_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fees: {
+        Row: {
+          academic_year: string
+          amount: number
+          created_at: string | null
+          created_by: string | null
+          due_date: string
+          fee_type: string
+          id: string
+          madrasa_name: string | null
+          payment_screenshot_url: string | null
+          status: string
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year: string
+          amount: number
+          created_at?: string | null
+          created_by?: string | null
+          due_date: string
+          fee_type: string
+          id?: string
+          madrasa_name?: string | null
+          payment_screenshot_url?: string | null
+          status: string
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year?: string
+          amount?: number
+          created_at?: string | null
+          created_by?: string | null
+          due_date?: string
+          fee_type?: string
+          id?: string
+          madrasa_name?: string | null
+          payment_screenshot_url?: string | null
+          status?: string
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      pending_user_roles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string
+          full_name: string | null
+          id: string
+          madrasa_name: string | null
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email: string
+          full_name?: string | null
+          id?: string
+          madrasa_name?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          madrasa_name?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          logo_url: string | null
+          madrasa_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          logo_url?: string | null
+          madrasa_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          logo_url?: string | null
+          madrasa_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      students: {
+        Row: {
+          admission_date: string
+          age: number | null
+          class_id: string | null
+          contact: string | null
+          created_at: string
+          father_name: string
+          grade: string | null
+          id: string
+          madrasa_name: string | null
+          name: string
+          photo_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admission_date?: string
+          age?: number | null
+          class_id?: string | null
+          contact?: string | null
+          created_at?: string
+          father_name: string
+          grade?: string | null
+          id?: string
+          madrasa_name?: string | null
+          name: string
+          photo_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admission_date?: string
+          age?: number | null
+          class_id?: string | null
+          contact?: string | null
+          created_at?: string
+          father_name?: string
+          grade?: string | null
+          id?: string
+          madrasa_name?: string | null
+          name?: string
+          photo_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      teachers: {
+        Row: {
+          classes_count: number | null
+          contact: string
+          created_at: string
+          email: string
+          id: string
+          madrasa_name: string | null
+          name: string
+          qualification: string
+          specialization: string | null
+          students_count: number | null
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          classes_count?: number | null
+          contact: string
+          created_at?: string
+          email: string
+          id?: string
+          madrasa_name?: string | null
+          name: string
+          qualification: string
+          specialization?: string | null
+          students_count?: number | null
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          classes_count?: number | null
+          contact?: string
+          created_at?: string
+          email?: string
+          id?: string
+          madrasa_name?: string | null
+          name?: string
+          qualification?: string
+          specialization?: string | null
+          students_count?: number | null
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "teacher" | "student" | "manager" | "parent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +583,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "teacher", "student", "manager", "parent"],
+    },
   },
 } as const
