@@ -1,4 +1,4 @@
-import { Bell, Search, LogOut, User, Languages } from "lucide-react";
+import { Bell, Search, LogOut, User, Languages, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -17,7 +17,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { usePendingUserRoles } from "@/hooks/usePendingUserRoles";
 import { useNavigate } from "react-router-dom";
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const { user, signOut, isAdmin, madrasaName } = useAuth();
   const { t, i18n } = useTranslation();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -42,6 +46,16 @@ export default function Header() {
   return (
     <header className="fixed left-0 md:left-64 right-0 top-0 z-30 h-16 md:h-20 border-b border-border bg-card shadow-soft">
       <div className="flex h-full items-center justify-between px-4 md:px-6 lg:px-8">
+        {/* Mobile menu button */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="md:hidden"
+          onClick={onMenuClick}
+        >
+          <Menu className="h-6 w-6" />
+        </Button>
+
         {/* Madrasa Name - Hidden on mobile */}
         {madrasaName && (
           <div className="hidden md:block">

@@ -19,8 +19,38 @@ import UserRoles from "./pages/UserRoles";
 import MyAccount from "./pages/MyAccount";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import { useState } from "react";
 
 const queryClient = new QueryClient();
+
+const AppLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  return (
+    <div className="flex min-h-screen bg-background">
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="flex-1 md:pl-64">
+        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <main className="mt-16 md:mt-20 p-4 md:p-6 lg:p-8">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/teachers" element={<Teachers />} />
+            <Route path="/classes" element={<Classes />} />
+            <Route path="/attendance" element={<Attendance />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/education-reports" element={<EducationReports />} />
+            <Route path="/fees" element={<Fees />} />
+            <Route path="/user-roles" element={<UserRoles />} />
+            <Route path="/my-account" element={<MyAccount />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+      </div>
+    </div>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -35,28 +65,7 @@ const App = () => (
               path="/*"
               element={
                 <ProtectedRoute>
-                  <div className="flex min-h-screen bg-background">
-                    <Sidebar />
-                    <div className="flex-1 md:pl-64">
-                      <Header />
-                      <main className="mt-16 md:mt-20 p-4 md:p-6 lg:p-8">
-                        <Routes>
-                          <Route path="/" element={<Dashboard />} />
-                          <Route path="/students" element={<Students />} />
-                          <Route path="/teachers" element={<Teachers />} />
-                          <Route path="/classes" element={<Classes />} />
-                          <Route path="/attendance" element={<Attendance />} />
-                          <Route path="/courses" element={<Courses />} />
-                          <Route path="/education-reports" element={<EducationReports />} />
-                          <Route path="/fees" element={<Fees />} />
-                          <Route path="/user-roles" element={<UserRoles />} />
-                          <Route path="/my-account" element={<MyAccount />} />
-                          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </main>
-                    </div>
-                  </div>
+                  <AppLayout />
                 </ProtectedRoute>
               }
             />

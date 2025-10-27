@@ -79,8 +79,36 @@ export default function Dashboard() {
         <p className="text-muted-foreground mt-1 text-sm md:text-base">{t('overview')}</p>
       </div>
 
+      {/* Quick Actions - Moved to top */}
+      <Card className="shadow-elevated">
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Common tasks and shortcuts</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+            <Button className="h-auto flex-col gap-2 py-4" variant="outline" onClick={() => navigate('/students')}>
+              <Users className="h-6 w-6" />
+              <span className="text-xs md:text-sm">Add Student</span>
+            </Button>
+            <Button className="h-auto flex-col gap-2 py-4" variant="outline" onClick={() => navigate('/teachers')}>
+              <GraduationCap className="h-6 w-6" />
+              <span className="text-xs md:text-sm">Add Teacher</span>
+            </Button>
+            <Button className="h-auto flex-col gap-2 py-4" variant="outline" onClick={() => navigate('/classes')}>
+              <BookOpen className="h-6 w-6" />
+              <span className="text-xs md:text-sm">Create Class</span>
+            </Button>
+            <Button className="h-auto flex-col gap-2 py-4" variant="outline" onClick={() => navigate('/attendance')}>
+              <ClipboardCheck className="h-6 w-6" />
+              <span className="text-xs md:text-sm">Mark Attendance</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => (
           <StatsCard key={index} {...stat} />
         ))}
@@ -148,34 +176,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Quick Actions */}
-      <Card className="shadow-elevated">
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common tasks and shortcuts</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Button className="h-auto flex-col gap-2 py-4" variant="outline" onClick={() => navigate('/students')}>
-              <Users className="h-6 w-6" />
-              <span>Add Student</span>
-            </Button>
-            <Button className="h-auto flex-col gap-2 py-4" variant="outline" onClick={() => navigate('/teachers')}>
-              <GraduationCap className="h-6 w-6" />
-              <span>Add Teacher</span>
-            </Button>
-            <Button className="h-auto flex-col gap-2 py-4" variant="outline" onClick={() => navigate('/classes')}>
-              <BookOpen className="h-6 w-6" />
-              <span>Create Class</span>
-            </Button>
-            <Button className="h-auto flex-col gap-2 py-4" variant="outline" onClick={() => navigate('/attendance')}>
-              <ClipboardCheck className="h-6 w-6" />
-              <span>Mark Attendance</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

@@ -6,11 +6,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
   const { t } = useTranslation();
   const { isAdmin, madrasaName, logoUrl } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
 
   const navigation = [
     { name: t('dashboard'), href: "/", icon: LayoutDashboard },
@@ -27,19 +31,19 @@ export default function Sidebar() {
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
-    setIsOpen(false);
-  }, [location.pathname]);
+    onClose();
+  }, [location.pathname, onClose]);
 
   // Close sidebar on larger screens
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
-        setIsOpen(false);
+        onClose();
       }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [onClose]);
 
   return (
     <>
@@ -47,7 +51,7 @@ export default function Sidebar() {
       {isOpen && (
         <div 
           className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden" 
-          onClick={() => setIsOpen(false)}
+          onClick={onClose}
         />
       )}
       
@@ -78,7 +82,7 @@ export default function Sidebar() {
             </div>
             {/* Mobile close button */}
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
               className="md:hidden p-2 hover:bg-sidebar-accent/50 rounded-lg"
             >
               <X className="h-5 w-5 text-sidebar-foreground" />
@@ -122,14 +126,6 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Mobile menu button - exported for Header to use */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed bottom-4 right-4 z-50 p-3 bg-sidebar-primary text-sidebar-primary-foreground rounded-full shadow-elevated"
-        aria-label="Toggle menu"
-      >
-        <BookOpen className="h-6 w-6" />
-      </button>
     </>
   );
 }
