@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Plus, Shield, Mail } from "lucide-react";
+import { Search, Plus, Shield, Mail, Phone, AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -173,7 +173,9 @@ export default function UserRoles() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="min-w-[180px]">Email Address</TableHead>
+                        <TableHead className="min-w-[150px]">Name</TableHead>
+                        <TableHead className="min-w-[180px]">Email</TableHead>
+                        <TableHead className="min-w-[120px]">Contact</TableHead>
                         <TableHead className="min-w-[100px]">Role</TableHead>
                         <TableHead className="min-w-[120px]">Created At</TableHead>
                         <TableHead className="text-right min-w-[100px]">Actions</TableHead>
@@ -182,7 +184,25 @@ export default function UserRoles() {
                     <TableBody>
                       {filteredPendingRoles.map((role) => (
                         <TableRow key={role.id}>
-                          <TableCell className="truncate max-w-[200px]">{role.email}</TableCell>
+                          <TableCell className="font-medium">
+                            {role.full_name || 'N/A'}
+                          </TableCell>
+                          <TableCell className="truncate max-w-[180px]">
+                            <div className="flex items-center gap-2">
+                              <Mail className="h-4 w-4 text-muted-foreground" />
+                              {role.email}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {role.contact_number ? (
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                {role.contact_number}
+                              </div>
+                            ) : (
+                              'N/A'
+                            )}
+                          </TableCell>
                           <TableCell>{getRoleBadge(role.role)}</TableCell>
                           <TableCell className="text-sm">{new Date(role.created_at).toLocaleDateString()}</TableCell>
                           <TableCell className="text-right">

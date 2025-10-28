@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, User, Phone, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, User, Phone, Edit, Trash2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,9 +8,12 @@ import { useStudents, Student } from "@/hooks/useStudents";
 import { StudentDialog } from "@/components/Students/StudentDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { exportStudentListToPDF } from "@/lib/exportUtils";
+import { useClasses } from "@/hooks/useClasses";
+import { toast } from "sonner";
 
 export default function Students() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, madrasaName } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | undefined>();
@@ -18,10 +21,26 @@ export default function Students() {
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
   
   const { students, isLoading, addStudent, updateStudent, deleteStudent } = useStudents();
+  const { classes } = useClasses();
 
   const filteredStudents = students.filter((student) =>
     student.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleExport = () => {
+    if (filteredStudents.length === 0) {
+      toast.error('No students to export');
+      return;
+    }
+    
+    exportStudentListToPDF({
+      students: filteredStudents,
+      madrasaName: madrasaName || 'Madrasa',
+      classes
+    });
+    
+    toast.success('Student list exported successfully!');
+  };
 
   const handleAddClick = () => {
     setEditingStudent(undefined);
@@ -83,8 +102,10 @@ export default function Students() {
               />
             </div>
             <div className="flex gap-2">
-              <Button variant="outline">Filter</Button>
-              <Button variant="outline">Export</Button>
+              <Button variant="outline" onClick={handleExport}>
+                <Download className="h-4 w-4 mr-2" />
+                Export PDF
+              </Button>
             </div>
           </div>
         </CardContent>

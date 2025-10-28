@@ -9,6 +9,10 @@ export interface PendingUserRole {
   role: string;
   created_by: string | null;
   created_at: string;
+  madrasa_name?: string;
+  full_name?: string;
+  contact_number?: string;
+  contact_email?: string;
 }
 
 export const usePendingUserRoles = () => {
@@ -30,12 +34,22 @@ export const usePendingUserRoles = () => {
   });
 
   const createPendingRole = useMutation({
-    mutationFn: async (newRole: { email: string; role: string; full_name?: string; madrasa_name?: string }) => {
+    mutationFn: async (newRole: { 
+      email: string; 
+      role: string; 
+      full_name?: string; 
+      madrasa_name?: string;
+      contact_number?: string;
+      contact_email?: string;
+    }) => {
       const { data: authData } = await supabase.auth.getUser();
       
       const insertData: any = {
         email: newRole.email,
         role: newRole.role,
+        full_name: newRole.full_name,
+        contact_number: newRole.contact_number,
+        contact_email: newRole.contact_email,
       };
 
       // If madrasa_name is provided, use it (for join requests)

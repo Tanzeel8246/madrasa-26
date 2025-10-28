@@ -4,15 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePendingUserRoles } from '@/hooks/usePendingUserRoles';
-import { supabase } from '@/integrations/supabase/untypedClient';
 import { toast } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 
 const JoinRequestForm = () => {
   const { user } = useAuth();
   const [fullName, setFullName] = useState('');
-  const [selectedMadrasa, setSelectedMadrasa] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
   const [selectedRole, setSelectedRole] = useState<'teacher' | 'user'>('user');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createPendingRole } = usePendingUserRoles();
@@ -21,25 +20,9 @@ const JoinRequestForm = () => {
   useEffect(() => {
     if (user?.email) {
       setFullName(user.user_metadata?.full_name || '');
+      setContactEmail(user.email);
     }
   }, [user]);
-
-  // Fetch all unique madrasa names
-  const { data: madrasas } = useQuery({
-    queryKey: ['madrasas'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('madrasa_name')
-        .not('madrasa_name', 'is', null);
-      
-      if (error) throw error;
-      
-      // Get unique madrasa names
-      const uniqueMadrasas = [...new Set(data.map(p => p.madrasa_name))];
-      return uniqueMadrasas.filter(Boolean) as string[];
-    }
-  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +32,7 @@ const JoinRequestForm = () => {
       return;
     }
 
-    if (!fullName || !selectedMadrasa) {
+    if (!fullName || !contactEmail || !contactNumber) {
       toast.error('تمام فیلڈز پُر کریں');
       return;
     }
@@ -61,14 +44,16 @@ const JoinRequestForm = () => {
         email: user.email!,
         role: selectedRole,
         full_name: fullName,
-        madrasa_name: selectedMadrasa
+        contact_number: contactNumber,
+        contact_email: contactEmail
       });
 
       toast.success('درخواست جمع کرا دی گئی! ایڈمن کی منظوری کا انتظار کریں');
       
       // Reset form
       setFullName('');
-      setSelectedMadrasa('');
+      setContactNumber('');
+      setContactEmail(user.email || '');
       setSelectedRole('user');
     } catch (error: any) {
       toast.error(error.message || 'درخواست جمع کرانے میں خرابی');
@@ -120,25 +105,29 @@ const JoinRequestForm = () => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="madrasa-select">مدرسہ منتخب کریں</Label>
-        <Select value={selectedMadrasa} onValueChange={setSelectedMadrasa} required>
-          <SelectTrigger id="madrasa-select">
-            <SelectValue placeholder="مدرسہ منتخب کریں" />
-          </SelectTrigger>
-          <SelectContent>
-            {madrasas && madrasas.length > 0 ? (
-              madrasas.map((madrasa) => (
-                <SelectItem key={madrasa} value={madrasa}>
-                  {madrasa}
-                </SelectItem>
-              ))
-            ) : (
-              <SelectItem value="" disabled>
-                کوئی مدرسہ دستیاب نہیں
-              </SelectItem>
-            )}
-          </SelectContent>
-        </Select>
+        <Label htmlFor="contact-email">رابطہ ای میل</Label>
+        <Input
+          id="contact-email"
+          type="email"
+          placeholder="contact@example.com"
+          value={contactEmail}
+          onChange={(e) => setContactEmail(e.target.value)}
+          required
+          dir="ltr"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="contact-number">موبائل نمبر</Label>
+        <Input
+          id="contact-number"
+          type="tel"
+          placeholder="+92 300 1234567"
+          value={contactNumber}
+          onChange={(e) => setContactNumber(e.target.value)}
+          required
+          dir="ltr"
+        />
       </div>
 
       <div className="space-y-2">
@@ -157,7 +146,7 @@ const JoinRequestForm = () => {
       <Button
         type="submit"
         className="w-full"
-        disabled={isSubmitting || !selectedMadrasa}
+        disabled={isSubmitting}
       >
         {isSubmitting ? (
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>

@@ -273,6 +273,8 @@ export type Database = {
       }
       pending_user_roles: {
         Row: {
+          contact_email: string | null
+          contact_number: string | null
           created_at: string
           created_by: string | null
           email: string
@@ -282,6 +284,8 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
         }
         Insert: {
+          contact_email?: string | null
+          contact_number?: string | null
           created_at?: string
           created_by?: string | null
           email: string
@@ -291,6 +295,8 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
         }
         Update: {
+          contact_email?: string | null
+          contact_number?: string | null
           created_at?: string
           created_by?: string | null
           email?: string
