@@ -7,14 +7,28 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/untypedClient";
 import { toast } from "sonner";
-import { Loader2, Upload, User, Building2 } from "lucide-react";
+import { Loader2, Upload, User, Building2, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useNavigate } from "react-router-dom";
 
 export default function MyAccount() {
-  const { user, madrasaName } = useAuth();
+  const { user, madrasaName, signOut } = useAuth();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [fullName, setFullName] = useState("");
   const [newMadrasaName, setNewMadrasaName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
@@ -93,10 +107,46 @@ export default function MyAccount() {
       if (error) throw error;
 
       toast.success(t('profileUpdated') || 'Profile updated successfully!');
+      
+      // Reload page to update the context
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error: any) {
       toast.error(error.message || 'Failed to update profile');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+
+    try {
+      setIsDeleting(true);
+
+      // Delete user data from profiles table (will cascade to other tables)
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user.id);
+
+      if (profileError) throw profileError;
+
+      // Delete the auth user
+      const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
+
+      if (authError) {
+        // If admin delete fails, try regular sign out
+        await signOut();
+        toast.success('Account data deleted. Please contact admin to complete account deletion.');
+        return;
+      }
+
+      toast.success('Account deleted successfully');
+      navigate('/auth');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete account');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -221,6 +271,54 @@ export default function MyAccount() {
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t('saveChanges') || 'Save Changes'}
             </Button>
+          </CardContent>
+        </Card>
+
+        {/* Danger Zone */}
+        <Card className="shadow-elevated border-destructive">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              خطرے کا علاقہ / Danger Zone
+            </CardTitle>
+            <CardDescription>
+              اکاؤنٹ کو مستقل طور پر حذف کریں / Permanently delete your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" disabled={isDeleting}>
+                  {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  اکاؤنٹ حذف کریں / Delete Account
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>کیا آپ واقعی اپنا اکاؤنٹ حذف کرنا چاہتے ہیں؟</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    یہ عمل واپس نہیں کیا جا سکتا۔ اس سے آپ کا تمام ڈیٹا مستقل طور پر حذف ہو جائے گا۔
+                    <br /><br />
+                    This action cannot be undone. This will permanently delete your account and remove all your data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>منسوخ / Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    ہاں، حذف کریں / Yes, Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <p className="text-xs text-muted-foreground mt-2">
+              ⚠️ یہ عمل مستقل ہے اور اسے واپس نہیں کیا جا سکتا
+              <br />
+              This action is permanent and cannot be undone
+            </p>
           </CardContent>
         </Card>
       </div>
