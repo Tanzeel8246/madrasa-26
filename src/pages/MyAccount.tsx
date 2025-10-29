@@ -123,28 +123,35 @@ export default function MyAccount() {
     try {
       setIsDeleting(true);
 
-      // Delete user data from profiles table (will cascade to other tables)
+      // First delete user roles
+      const { error: rolesError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (rolesError) {
+        console.error('Error deleting roles:', rolesError);
+      }
+
+      // Then delete profile (this will cascade delete to other tables)
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
         .eq('id', user.id);
 
-      if (profileError) throw profileError;
-
-      // Delete the auth user
-      const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
-
-      if (authError) {
-        // If admin delete fails, try regular sign out
-        await signOut();
-        toast.success('Account data deleted. Please contact admin to complete account deletion.');
-        return;
+      if (profileError) {
+        console.error('Error deleting profile:', profileError);
+        throw profileError;
       }
 
-      toast.success('Account deleted successfully');
+      // Sign out the user
+      await signOut();
+      
+      toast.success('اکاؤنٹ کامیابی سے حذف ہو گیا / Account deleted successfully');
       navigate('/auth');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete account');
+      console.error('Delete account error:', error);
+      toast.error(error.message || 'اکاؤنٹ حذف کرنے میں ناکامی / Failed to delete account');
     } finally {
       setIsDeleting(false);
     }
