@@ -16,6 +16,21 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { t } = useTranslation();
   const { isAdmin, madrasaName, logoUrl } = useAuth();
 
+  console.log('Sidebar render - isOpen:', isOpen);
+
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    console.log('Sidebar useEffect - isOpen changed to:', isOpen);
+    if (isOpen && window.innerWidth < 768) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   const navigation = [
     { name: t('dashboard'), href: "/", icon: LayoutDashboard },
     { name: t('students'), href: "/students", icon: Users },
@@ -31,8 +46,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
-    onClose();
-  }, [location.pathname, onClose]);
+    if (isOpen) {
+      onClose();
+    }
+  }, [location.pathname]);
 
   // Close sidebar on larger screens
   useEffect(() => {
@@ -50,17 +67,22 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Mobile overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden" 
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden" 
           onClick={onClose}
+          aria-hidden="true"
         />
       )}
       
       {/* Sidebar */}
-      <aside className={cn(
-        "fixed left-0 top-0 z-50 h-screen w-64 bg-sidebar transition-transform duration-300 ease-in-out",
-        "md:translate-x-0",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
+      <aside 
+        className={cn(
+          "fixed left-0 top-0 z-50 h-screen w-64 bg-sidebar shadow-2xl",
+          "transition-transform duration-300 ease-in-out",
+          "md:translate-x-0",
+          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        )}
+        aria-label="Sidebar navigation"
+      >
         <div className="flex h-full flex-col overflow-y-auto">
           {/* Logo */}
           <div className="flex h-16 md:h-20 items-center gap-3 border-b border-sidebar-border px-4 md:px-6">

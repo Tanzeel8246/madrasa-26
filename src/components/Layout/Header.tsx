@@ -51,7 +51,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
           variant="ghost" 
           size="icon" 
           className="md:hidden hover:bg-primary/10 active:bg-primary/20"
-          onClick={onMenuClick}
+          onClick={() => {
+            console.log('Menu button clicked');
+            onMenuClick?.();
+          }}
           aria-label="Open menu"
         >
           <Menu className="h-6 w-6 text-primary" />
