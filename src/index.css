@@ -111,4 +111,15 @@ All colors MUST be HSL.
     font-family: 'Noto Nastaliq Urdu', serif !important;
     direction: rtl;
   }
+
+  /* Apply Urdu font to all text elements globally */
+  body, input, textarea, select, button, label, span, p, h1, h2, h3, h4, h5, h6, div, li {
+    font-family: 'Noto Nastaliq Urdu', 'Inter', system-ui, -apple-system, sans-serif !important;
+  }
+
+  /* Ensure English text uses system fonts where needed */
+  [lang="en"], [lang="en"] * {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    direction: ltr;
+  }
 }
