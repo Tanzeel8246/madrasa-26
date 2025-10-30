@@ -27,11 +27,11 @@ const AppLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background w-full">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 md:pl-64">
+      <div className="flex-1 md:pl-64 w-full">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="mt-16 md:mt-20 p-4 md:p-6 lg:p-8">
+        <main className="mt-16 md:mt-20 p-3 sm:p-4 md:p-6 lg:p-8 max-w-full overflow-x-hidden">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/students" element={<Students />} />

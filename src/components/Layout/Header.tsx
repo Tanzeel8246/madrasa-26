@@ -45,15 +45,16 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header className="fixed left-0 md:left-64 right-0 top-0 z-30 h-16 md:h-20 border-b border-border bg-card shadow-soft">
-      <div className="flex h-full items-center justify-between px-4 md:px-6 lg:px-8">
-        {/* Mobile menu button */}
+      <div className="flex h-full items-center justify-between px-3 md:px-6 lg:px-8">
+        {/* Mobile menu button - Enhanced visibility */}
         <Button 
           variant="ghost" 
           size="icon" 
-          className="md:hidden"
+          className="md:hidden hover:bg-primary/10 active:bg-primary/20"
           onClick={onMenuClick}
+          aria-label="Open menu"
         >
-          <Menu className="h-6 w-6" />
+          <Menu className="h-6 w-6 text-primary" />
         </Button>
 
         {/* Madrasa Name - Hidden on mobile */}
@@ -80,10 +81,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         {/* Mobile title */}
-        <h1 className="sm:hidden text-lg font-bold text-foreground">{t('appTitle')}</h1>
+        <h1 className="sm:hidden text-base font-bold text-foreground truncate px-2">{madrasaName || t('appTitle')}</h1>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
           {/* Search icon for mobile */}
           <Button variant="ghost" size="icon" className="sm:hidden" onClick={() => setSearchOpen(true)}>
             <Search className="h-5 w-5" />

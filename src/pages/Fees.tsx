@@ -56,11 +56,11 @@ export default function Fees() {
   const canManageFees = isAdmin;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Fee Management</h1>
-          <p className="text-muted-foreground text-sm md:text-base">Manage student fees and payments</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Fee Management</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm md:text-base">Manage student fees and payments</p>
         </div>
         {canManageFees && (
           <Button onClick={() => { setEditingFee(undefined); setDialogOpen(true); }} className="w-full sm:w-auto">
@@ -70,78 +70,81 @@ export default function Fees() {
       </div>
 
       <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <CardTitle className="text-lg md:text-xl">All Fees</CardTitle>
+        <CardHeader className="p-4 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="text-base sm:text-lg md:text-xl">All Fees</CardTitle>
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search fees..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8"
+                className="pl-8 text-sm"
               />
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 sm:p-6">
           {isLoading ? (
-            <div className="text-center py-8">Loading fees...</div>
+            <div className="text-center py-8 text-sm">Loading fees...</div>
           ) : filteredFees.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-muted-foreground text-sm">
               No fees found. Add your first fee to get started.
             </div>
           ) : (
-            <div className="overflow-x-auto -mx-6 sm:mx-0">
-              <Table>
+            <div className="overflow-x-auto">
+              <Table className="min-w-[640px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="min-w-[120px]">Fee Type</TableHead>
-                    <TableHead className="min-w-[100px]">Academic Year</TableHead>
-                    <TableHead className="min-w-[100px]">Amount</TableHead>
-                    <TableHead className="min-w-[120px]">Due Date</TableHead>
-                    <TableHead className="min-w-[100px]">Status</TableHead>
-                    {canManageFees && <TableHead className="text-right min-w-[150px]">Actions</TableHead>}
+                    <TableHead className="text-xs sm:text-sm">Fee Type</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Academic Year</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Amount</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Due Date</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Status</TableHead>
+                    {canManageFees && <TableHead className="text-right text-xs sm:text-sm">Actions</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredFees.map((fee) => (
                     <TableRow key={fee.id}>
-                      <TableCell className="font-medium">{fee.fee_type}</TableCell>
-                      <TableCell>{fee.academic_year}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-medium text-xs sm:text-sm">{fee.fee_type}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">{fee.academic_year}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">
                         <div className="flex items-center">
-                          <DollarSign className="h-4 w-4 mr-1" />
+                          <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                           {fee.amount}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm">
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-2" />
+                      <TableCell className="text-xs sm:text-sm">
+                        <div className="flex items-center whitespace-nowrap">
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           {new Date(fee.due_date).toLocaleDateString()}
                         </div>
                       </TableCell>
                       <TableCell>{getStatusBadge(fee.status)}</TableCell>
                       {canManageFees && (
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(fee)}
-                            className="mr-2"
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setFeeToDelete(fee.id);
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            Delete
-                          </Button>
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(fee)}
+                              className="text-xs px-2 h-7"
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setFeeToDelete(fee.id);
+                                setDeleteDialogOpen(true);
+                              }}
+                              className="text-xs px-2 h-7"
+                            >
+                              Delete
+                            </Button>
+                          </div>
                         </TableCell>
                       )}
                     </TableRow>
