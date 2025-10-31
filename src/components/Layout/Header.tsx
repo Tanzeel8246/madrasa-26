@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { SearchCommand } from "@/components/ui/search-command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { NotificationBell } from "@/components/Notifications/NotificationBell";
 import { usePendingUserRoles } from "@/hooks/usePendingUserRoles";
 import { useNavigate } from "react-router-dom";
 
@@ -25,8 +25,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const { user, signOut, isAdmin, madrasaName } = useAuth();
   const { t, i18n } = useTranslation();
   const [searchOpen, setSearchOpen] = useState(false);
-  const [notificationOpen, setNotificationOpen] = useState(false);
-  const { pendingRoles } = usePendingUserRoles();
   const navigate = useNavigate();
   
   const getInitials = (email: string) => {
@@ -102,45 +100,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <Languages className="h-5 w-5" />
           </Button>
 
-          {isAdmin && (
-            <Popover open={notificationOpen} onOpenChange={setNotificationOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  {pendingRoles.length > 0 && (
-                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
-                      {pendingRoles.length}
-                    </span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80" align="end">
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">{t('notifications')}</h4>
-                  {pendingRoles.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{t('noNewNotifications')}</p>
-                  ) : (
-                    <>
-                      <p className="text-sm text-muted-foreground">
-                        {pendingRoles.length} {t('pendingJoinRequests')}
-                      </p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full"
-                        onClick={() => {
-                          navigate('/user-roles');
-                          setNotificationOpen(false);
-                        }}
-                      >
-                        {t('viewAllRequests')}
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
-          )}
+          <NotificationBell />
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
