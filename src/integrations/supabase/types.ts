@@ -271,6 +271,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          message: string
+          read: boolean | null
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message: string
+          read?: boolean | null
+          title: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       pending_user_roles: {
         Row: {
           contact_email: string | null
@@ -281,7 +317,9 @@ export type Database = {
           full_name: string | null
           id: string
           madrasa_name: string | null
+          notification_sent: boolean | null
           role: Database["public"]["Enums"]["app_role"]
+          status: string | null
         }
         Insert: {
           contact_email?: string | null
@@ -292,7 +330,9 @@ export type Database = {
           full_name?: string | null
           id?: string
           madrasa_name?: string | null
+          notification_sent?: boolean | null
           role: Database["public"]["Enums"]["app_role"]
+          status?: string | null
         }
         Update: {
           contact_email?: string | null
@@ -303,7 +343,9 @@ export type Database = {
           full_name?: string | null
           id?: string
           madrasa_name?: string | null
+          notification_sent?: boolean | null
           role?: Database["public"]["Enums"]["app_role"]
+          status?: string | null
         }
         Relationships: []
       }
