@@ -10,16 +10,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const userRoleFormSchema = z.object({
   assignmentType: z.enum(["user_id", "email"]),
   user_id: z.string().optional(),
-  email: z.string().email("Invalid email address").optional(),
-  role: z.string().min(1, "Role is required"),
-}).refine((data) => {
+  email: z.string().email("یہ ای میل درست نہیں ہے").optional(),
+  role: z.string().min(1, "رول منتخب کریں"),
+}).superRefine((data, ctx) => {
   if (data.assignmentType === "user_id") {
-    return data.user_id && data.user_id.length > 0;
+    if (!data.user_id || data.user_id.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "یوزر ID درج کریں",
+        path: ["user_id"],
+      });
+    }
+  } else if (data.assignmentType === "email") {
+    if (!data.email || data.email.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "ای میل درج کریں",
+        path: ["email"],
+      });
+    }
   }
-  return data.email && data.email.length > 0;
-}, {
-  message: "Either User ID or Email is required",
-  path: ["user_id"],
 });
 
 type UserRoleFormValues = z.infer<typeof userRoleFormSchema>;
@@ -44,8 +54,13 @@ export function UserRoleDialog({ open, onOpenChange, onSave }: UserRoleDialogPro
   const assignmentType = form.watch("assignmentType");
 
   const onSubmit = async (data: UserRoleFormValues) => {
-    await onSave(data);
-    form.reset();
+    console.log('Form submitted with data:', data);
+    try {
+      await onSave(data);
+      form.reset();
+    } catch (error) {
+      console.error('Error in form submission:', error);
+    }
   };
 
   return (
