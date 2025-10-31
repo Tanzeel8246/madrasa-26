@@ -46,7 +46,7 @@ export default function Attendance() {
   const { isAdmin } = useAuth();
   
   const selectedDateString = date?.toISOString().split('T')[0];
-  const { attendance, isLoading, markAttendance } = useAttendance(selectedDateString);
+  const { attendance, isLoading, markAttendance, markBulkAttendance } = useAttendance(selectedDateString);
   const { students } = useStudents();
   const { classes } = useClasses();
 
@@ -64,6 +64,10 @@ export default function Attendance() {
 
   const handleSave = (attendanceData: any) => {
     markAttendance(attendanceData);
+  };
+
+  const handleBulkSave = (attendanceRecords: any[]) => {
+    markBulkAttendance(attendanceRecords);
   };
 
   const statusCounts = {
@@ -187,6 +191,7 @@ export default function Attendance() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSave={handleSave}
+        onBulkSave={handleBulkSave}
         students={students}
         classes={classes}
       />

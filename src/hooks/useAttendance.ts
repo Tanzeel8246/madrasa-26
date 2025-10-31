@@ -56,6 +56,24 @@ export const useAttendance = (selectedDate?: string) => {
     },
   });
 
+  const markBulkAttendance = useMutation({
+    mutationFn: async (attendanceRecords: Omit<Attendance, "id" | "created_at">[]) => {
+      const { data, error } = await supabase
+        .from("attendance")
+        .insert(attendanceRecords)
+        .select();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["attendance"] });
+      toast.success(`${data.length} students' attendance marked successfully`);
+    },
+    onError: (error) => {
+      toast.error(`Failed to mark bulk attendance: ${error.message}`);
+    },
+  });
+
   const updateAttendance = useMutation({
     mutationFn: async ({ id, ...attendanceData }: Partial<Attendance> & { id: string }) => {
       const { data, error } = await supabase
@@ -94,6 +112,7 @@ export const useAttendance = (selectedDate?: string) => {
     attendance,
     isLoading,
     markAttendance: markAttendance.mutate,
+    markBulkAttendance: markBulkAttendance.mutate,
     updateAttendance: updateAttendance.mutate,
     deleteAttendance: deleteAttendance.mutate,
   };
