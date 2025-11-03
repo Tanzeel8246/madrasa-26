@@ -2,12 +2,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
-import { CalendarIcon, Check, X, Clock, AlertCircle } from "lucide-react";
+import { CalendarIcon, Check, X, Clock, AlertCircle, BookOpen } from "lucide-react";
 import { useAttendance } from "@/hooks/useAttendance";
 import { useStudents } from "@/hooks/useStudents";
 import { useClasses } from "@/hooks/useClasses";
 import { AttendanceDialog } from "@/components/Attendance/AttendanceDialog";
+import { AttendanceRegister } from "@/components/Attendance/AttendanceRegister";
 import { useAuth } from "@/contexts/AuthContext";
 
 const getStatusColor = (status: string) => {
@@ -93,98 +95,117 @@ export default function Attendance() {
           )}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3 xl:grid-cols-[2fr_1fr]">
-          <Card className="order-2 lg:order-1">
-            <CardHeader>
-              <CardTitle className="text-lg md:text-xl">Attendance Records</CardTitle>
-              <CardDescription>
-                {date?.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <p className="text-center text-muted-foreground py-8">Loading attendance...</p>
-              ) : attendance.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No attendance records for this date</p>
-              ) : (
-                <div className="space-y-4">
-                  {attendance.map((record) => (
-                    <div
-                      key={record.id}
-                      className="flex items-center justify-between rounded-lg border p-4"
-                    >
-                      <div className="space-y-1">
-                        <p className="font-medium">{getStudentName(record.student_id)}</p>
-                        <p className="text-sm text-muted-foreground">{getClassName(record.class_id)}</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        {record.time && (
-                          <span className="text-sm text-muted-foreground">{record.time}</span>
-                        )}
-                        <Badge className={getStatusColor(record.status)}>
-                          <span className="flex items-center gap-1">
-                            {getStatusIcon(record.status)}
-                            {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
-                          </span>
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="daily" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="daily">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              Daily View
+            </TabsTrigger>
+            <TabsTrigger value="register">
+              <BookOpen className="mr-2 h-4 w-4" />
+              Register View
+            </TabsTrigger>
+          </TabsList>
 
-          <Card className="order-1 lg:order-2">
-            <CardHeader>
-              <CardTitle className="text-lg md:text-xl">Select Date</CardTitle>
-              <CardDescription className="text-sm">View attendance for a specific date</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                className="rounded-md border mx-auto"
-              />
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-green-500" />
-                    Present
-                  </span>
-                  <span className="font-medium">{statusCounts.present}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-red-500" />
-                    Absent
-                  </span>
-                  <span className="font-medium">{statusCounts.absent}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-yellow-500" />
-                    Late
-                  </span>
-                  <span className="font-medium">{statusCounts.late}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-blue-500" />
-                    Excused
-                  </span>
-                  <span className="font-medium">{statusCounts.excused}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          <TabsContent value="daily" className="space-y-6 mt-6">
+            <div className="grid gap-6 lg:grid-cols-3 xl:grid-cols-[2fr_1fr]">
+              <Card className="order-2 lg:order-1">
+                <CardHeader>
+                  <CardTitle className="text-lg md:text-xl">Attendance Records</CardTitle>
+                  <CardDescription>
+                    {date?.toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <p className="text-center text-muted-foreground py-8">Loading attendance...</p>
+                  ) : attendance.length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">No attendance records for this date</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {attendance.map((record) => (
+                        <div
+                          key={record.id}
+                          className="flex items-center justify-between rounded-lg border p-4"
+                        >
+                          <div className="space-y-1">
+                            <p className="font-medium">{getStudentName(record.student_id)}</p>
+                            <p className="text-sm text-muted-foreground">{getClassName(record.class_id)}</p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            {record.time && (
+                              <span className="text-sm text-muted-foreground">{record.time}</span>
+                            )}
+                            <Badge className={getStatusColor(record.status)}>
+                              <span className="flex items-center gap-1">
+                                {getStatusIcon(record.status)}
+                                {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                              </span>
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="order-1 lg:order-2">
+                <CardHeader>
+                  <CardTitle className="text-lg md:text-xl">Select Date</CardTitle>
+                  <CardDescription className="text-sm">View attendance for a specific date</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    className="rounded-md border mx-auto"
+                  />
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full bg-green-500" />
+                        Present
+                      </span>
+                      <span className="font-medium">{statusCounts.present}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full bg-red-500" />
+                        Absent
+                      </span>
+                      <span className="font-medium">{statusCounts.absent}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full bg-yellow-500" />
+                        Late
+                      </span>
+                      <span className="font-medium">{statusCounts.late}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full bg-blue-500" />
+                        Excused
+                      </span>
+                      <span className="font-medium">{statusCounts.excused}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="register" className="mt-6">
+            <AttendanceRegister selectedDate={date || new Date()} />
+          </TabsContent>
+        </Tabs>
       </div>
 
       <AttendanceDialog
