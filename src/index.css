@@ -123,3 +123,74 @@ All colors MUST be HSL.
     direction: ltr;
   }
 }
+
+/* Print styles for attendance register */
+@media print {
+  @page {
+    size: landscape;
+    margin: 0.5cm;
+  }
+  
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  
+  /* Hide unnecessary elements */
+  .print\:hidden {
+    display: none !important;
+  }
+  
+  /* Ensure proper background colors in print */
+  .print\:bg-primary {
+    background-color: hsl(var(--primary)) !important;
+    color: white !important;
+  }
+  
+  .print\:text-primary-foreground {
+    color: white !important;
+  }
+  
+  /* Table optimizations for print */
+  table {
+    page-break-inside: auto;
+  }
+  
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  
+  thead {
+    display: table-header-group;
+  }
+  
+  /* Reduce font sizes for print */
+  .print\:text-xs {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+  }
+  
+  .print\:text-sm {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+  
+  .print\:min-w-\[40px\] {
+    min-width: 40px !important;
+  }
+  
+  .print\:p-2 {
+    padding: 0.5rem !important;
+  }
+  
+  /* Optimize spacing */
+  .print\:flex-row {
+    flex-direction: row !important;
+  }
+  
+  /* Border visibility */
+  table td, table th {
+    border: 1px solid #999 !important;
+  }
+}
