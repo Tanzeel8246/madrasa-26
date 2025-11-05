@@ -12,7 +12,8 @@ const JoinRequestForm = () => {
   const [fullName, setFullName] = useState('');
   const [contactNumber, setContactNumber] = useState('');
   const [contactEmail, setContactEmail] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'teacher' | 'user'>('user');
+  const [selectedRole, setSelectedRole] = useState<'teacher' | 'student' | 'parent' | 'user'>('user');
+  const [relatedId, setRelatedId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createPendingRole } = usePendingUserRoles();
 
@@ -37,6 +38,12 @@ const JoinRequestForm = () => {
       return;
     }
 
+    // Check if related ID is required and provided
+    if (['teacher', 'student', 'parent'].includes(selectedRole) && !relatedId) {
+      toast.error(`${selectedRole === 'parent' ? 'طالب علم' : selectedRole === 'teacher' ? 'استاد' : 'طالب علم'} آئی ڈی درج کریں`);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -55,6 +62,7 @@ const JoinRequestForm = () => {
       setContactNumber('');
       setContactEmail(user.email || '');
       setSelectedRole('user');
+      setRelatedId('');
     } catch (error: any) {
       toast.error(error.message || 'درخواست جمع کرانے میں خرابی');
     } finally {
@@ -132,16 +140,39 @@ const JoinRequestForm = () => {
 
       <div className="space-y-2">
         <Label htmlFor="role-select">رول منتخب کریں</Label>
-        <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as 'teacher' | 'user')} required>
+        <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as 'teacher' | 'student' | 'parent' | 'user')} required>
           <SelectTrigger id="role-select">
             <SelectValue placeholder="رول منتخب کریں" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="teacher">استاد</SelectItem>
+            <SelectItem value="student">طالب علم</SelectItem>
+            <SelectItem value="parent">والدین</SelectItem>
             <SelectItem value="user">صارف</SelectItem>
           </SelectContent>
         </Select>
       </div>
+
+      {/* Show ID input field based on selected role */}
+      {['teacher', 'student', 'parent'].includes(selectedRole) && (
+        <div className="space-y-2">
+          <Label htmlFor="related-id">
+            {selectedRole === 'parent' ? 'طالب علم آئی ڈی' : selectedRole === 'teacher' ? 'استاد آئی ڈی' : 'طالب علم آئی ڈی'}
+          </Label>
+          <Input
+            id="related-id"
+            type="text"
+            placeholder={`${selectedRole === 'parent' ? 'طالب علم' : selectedRole === 'teacher' ? 'استاد' : 'طالب علم'} کی منفرد آئی ڈی درج کریں`}
+            value={relatedId}
+            onChange={(e) => setRelatedId(e.target.value)}
+            required
+            dir="ltr"
+          />
+          <p className="text-xs text-muted-foreground">
+            یہ آئی ڈی آپ کے {selectedRole === 'parent' ? 'بچے' : 'اکاؤنٹ'} سے منسلک کرنے کے لیے استعمال ہوگی
+          </p>
+        </div>
+      )}
 
       <Button
         type="submit"

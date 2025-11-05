@@ -232,7 +232,15 @@ export default function UserRoles() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSave={async (data) => {
-          if (data.assignmentType === "email" && data.email) {
+          if (data.assignmentType === "new_member" && data.email) {
+            await createPendingRole.mutateAsync({ 
+              email: data.email, 
+              role: data.role,
+              full_name: data.full_name,
+              contact_number: data.contact_number,
+              contact_email: data.email
+            });
+          } else if (data.assignmentType === "email" && data.email) {
             await createPendingRole.mutateAsync({ email: data.email, role: data.role });
           } else if (data.assignmentType === "user_id" && data.user_id) {
             await createUserRole.mutateAsync({ user_id: data.user_id, role: data.role });

@@ -27,7 +27,7 @@ export const useUserRoles = () => {
         .from("user_roles")
         .select(`
           *,
-          profile:profiles!user_roles_user_id_fkey (
+          profile:profiles (
             full_name,
             madrasa_name
           )
@@ -54,7 +54,7 @@ export const useUserRoles = () => {
         .insert([newRole])
         .select(`
           *,
-          profile:profiles!user_roles_user_id_fkey (
+          profile:profiles (
             full_name,
             madrasa_name
           )

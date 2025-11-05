@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const userRoleFormSchema = z.object({
-  assignmentType: z.enum(["user_id", "email"]),
+  assignmentType: z.enum(["user_id", "email", "new_member"]),
   user_id: z.string().optional(),
   email: z.string().email("یہ ای میل درست نہیں ہے").optional(),
+  full_name: z.string().optional(),
+  contact_number: z.string().optional(),
   role: z.string().min(1, "رول منتخب کریں"),
 }).superRefine((data, ctx) => {
   if (data.assignmentType === "user_id") {
@@ -29,6 +31,21 @@ const userRoleFormSchema = z.object({
         path: ["email"],
       });
     }
+  } else if (data.assignmentType === "new_member") {
+    if (!data.email || data.email.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "ای میل درج کریں",
+        path: ["email"],
+      });
+    }
+    if (!data.full_name || data.full_name.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "نام درج کریں",
+        path: ["full_name"],
+      });
+    }
   }
 });
 
@@ -44,9 +61,11 @@ export function UserRoleDialog({ open, onOpenChange, onSave }: UserRoleDialogPro
   const form = useForm<UserRoleFormValues>({
     resolver: zodResolver(userRoleFormSchema),
     defaultValues: {
-      assignmentType: "email",
+      assignmentType: "new_member",
       user_id: "",
       email: "",
+      full_name: "",
+      contact_number: "",
       role: "teacher",
     },
   });
@@ -67,7 +86,7 @@ export function UserRoleDialog({ open, onOpenChange, onSave }: UserRoleDialogPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Assign User Role</DialogTitle>
+          <DialogTitle>یوزر رول تفویض کریں</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -76,7 +95,7 @@ export function UserRoleDialog({ open, onOpenChange, onSave }: UserRoleDialogPro
               name="assignmentType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Assignment Type</FormLabel>
+                  <FormLabel>تفویض کی قسم</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -84,8 +103,9 @@ export function UserRoleDialog({ open, onOpenChange, onSave }: UserRoleDialogPro
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="email">Assign by Email (before signup)</SelectItem>
-                      <SelectItem value="user_id">Assign by User ID (existing user)</SelectItem>
+                      <SelectItem value="new_member">نیا ممبر شامل کریں</SelectItem>
+                      <SelectItem value="email">ای میل سے تفویض کریں (سائن اپ سے پہلے)</SelectItem>
+                      <SelectItem value="user_id">یوزر آئی ڈی سے تفویض کریں (موجودہ یوزر)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -99,23 +119,65 @@ export function UserRoleDialog({ open, onOpenChange, onSave }: UserRoleDialogPro
                 name="user_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>User ID</FormLabel>
+                    <FormLabel>یوزر آئی ڈی</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter user ID" {...field} />
+                      <Input placeholder="یوزر آئی ڈی درج کریں" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            ) : assignmentType === "new_member" ? (
+              <>
+                <FormField
+                  control={form.control}
+                  name="full_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>مکمل نام</FormLabel>
+                      <FormControl>
+                        <Input placeholder="نام درج کریں" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>ای میل ایڈریس</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="ای میل درج کریں" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="contact_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>رابطہ نمبر</FormLabel>
+                      <FormControl>
+                        <Input type="tel" placeholder="موبائل نمبر درج کریں" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
             ) : (
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email Address</FormLabel>
+                    <FormLabel>ای میل ایڈریس</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="Enter email address" {...field} />
+                      <Input type="email" placeholder="ای میل ایڈریس درج کریں" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -128,7 +190,7 @@ export function UserRoleDialog({ open, onOpenChange, onSave }: UserRoleDialogPro
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>رول</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -136,11 +198,11 @@ export function UserRoleDialog({ open, onOpenChange, onSave }: UserRoleDialogPro
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="teacher">Teacher</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
-                      <SelectItem value="student">Student</SelectItem>
-                      <SelectItem value="parent">Parent</SelectItem>
+                      <SelectItem value="admin">ایڈمن</SelectItem>
+                      <SelectItem value="teacher">استاد</SelectItem>
+                      <SelectItem value="manager">منیجر</SelectItem>
+                      <SelectItem value="student">طالب علم</SelectItem>
+                      <SelectItem value="parent">والدین</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -150,9 +212,9 @@ export function UserRoleDialog({ open, onOpenChange, onSave }: UserRoleDialogPro
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                منسوخ کریں
               </Button>
-              <Button type="submit">Assign Role</Button>
+              <Button type="submit">رول تفویض کریں</Button>
             </div>
           </form>
         </Form>
