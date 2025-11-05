@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, User, Phone, Edit, Trash2, Download } from "lucide-react";
+import { Plus, Search, User, Phone, Edit, Trash2, Download, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +19,7 @@ export default function Students() {
   const [editingStudent, setEditingStudent] = useState<Student | undefined>();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   
   const { students, isLoading, addStudent, updateStudent, deleteStudent } = useStudents();
   const { classes } = useClasses();
@@ -71,6 +72,13 @@ export default function Students() {
       setDeleteDialogOpen(false);
       setStudentToDelete(null);
     }
+  };
+
+  const handleCopyId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    toast.success('آئی ڈی کاپی ہو گئی');
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   return (
@@ -147,6 +155,24 @@ export default function Students() {
                         <div className="flex items-center gap-2 text-sm">
                           <Phone className="h-4 w-4 text-muted-foreground" />
                           <span className="text-foreground">{student.contact}</span>
+                        </div>
+                      )}
+                      {isAdmin && (
+                        <div className="flex items-center gap-2 text-sm border-t border-border pt-2 mt-2">
+                          <Badge variant="outline" className="font-mono text-xs">ID</Badge>
+                          <span className="text-xs text-muted-foreground truncate flex-1">{student.id}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0"
+                            onClick={() => handleCopyId(student.id)}
+                          >
+                            {copiedId === student.id ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
                         </div>
                       )}
                     </div>
