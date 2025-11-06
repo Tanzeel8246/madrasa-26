@@ -2,12 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Printer } from "lucide-react";
+import { Printer, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useStudents } from "@/hooks/useStudents";
 import { useClasses } from "@/hooks/useClasses";
 import { useAttendance } from "@/hooks/useAttendance";
-import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameDay } from "date-fns";
+import { startOfMonth, endOfMonth, eachDayOfInterval, format } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface AttendanceRegisterProps {
   selectedDate: Date;
@@ -45,8 +47,10 @@ const getStatusColor = (status: string) => {
 
 export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
   const [selectedClassId, setSelectedClassId] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
   const { students } = useStudents();
   const { classes } = useClasses();
+  const { isAdmin } = useAuth();
   
   // Get all days in the selected month
   const monthDays = useMemo(() => {
@@ -55,10 +59,17 @@ export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
     return eachDayOfInterval({ start, end });
   }, [selectedDate]);
 
+  // Split days into pages of 10 days each
+  const daysPerPage = 10;
+  const totalPages = Math.ceil(monthDays.length / daysPerPage);
+  const paginatedDays = useMemo(() => {
+    const startIndex = (currentPage - 1) * daysPerPage;
+    const endIndex = startIndex + daysPerPage;
+    return monthDays.slice(startIndex, endIndex);
+  }, [monthDays, currentPage]);
+
   // Fetch attendance for the entire month
-  const startDateStr = format(startOfMonth(selectedDate), 'yyyy-MM-dd');
-  const endDateStr = format(endOfMonth(selectedDate), 'yyyy-MM-dd');
-  const { attendance } = useAttendance();
+  const { attendance, markAttendance } = useAttendance();
 
   // Filter students by selected class
   const filteredStudents = useMemo(() => {
@@ -77,6 +88,44 @@ export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
     return record?.status || null;
   };
 
+  // Cycle through attendance statuses
+  const cycleAttendanceStatus = (currentStatus: string | null): string => {
+    const statusCycle = [null, "present", "absent", "late", "excused"];
+    const currentIndex = statusCycle.indexOf(currentStatus);
+    const nextIndex = (currentIndex + 1) % statusCycle.length;
+    return statusCycle[nextIndex] as string;
+  };
+
+  // Handle attendance marking
+  const handleMarkAttendance = (studentId: string, date: Date) => {
+    if (!isAdmin) {
+      toast.error("Only admins can mark attendance");
+      return;
+    }
+
+    const currentStatus = getAttendanceStatus(studentId, date);
+    const newStatus = cycleAttendanceStatus(currentStatus);
+    
+    if (newStatus === null) {
+      // Delete attendance if cycling back to null
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const record = attendance.find(
+        a => a.student_id === studentId && a.date === dateStr
+      );
+      // For now, just skip - we'd need a delete function
+      return;
+    }
+
+    const student = students.find(s => s.id === studentId);
+    markAttendance({
+      date: format(date, 'yyyy-MM-dd'),
+      student_id: studentId,
+      class_id: student?.class_id,
+      status: newStatus,
+      time: "صبح",
+    });
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -90,7 +139,7 @@ export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
               حاضری رجسٹر
             </CardTitle>
             <p className="text-sm opacity-90 mt-1">
-              {format(selectedDate, 'MMMM yyyy')} - ماہ
+              {format(selectedDate, 'MMMM yyyy')} - ماہ (صفحہ {currentPage} از {totalPages})
             </p>
           </div>
           <div className="flex gap-2 print:hidden w-full sm:w-auto">
@@ -107,6 +156,24 @@ export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
                 ))}
               </SelectContent>
             </Select>
+            <div className="flex gap-1">
+              <Button 
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                variant="outline" 
+                size="icon"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button 
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                variant="outline" 
+                size="icon"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </div>
             <Button onClick={handlePrint} variant="outline" size="icon">
               <Printer className="h-4 w-4" />
             </Button>
@@ -127,7 +194,7 @@ export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
                 <TableHead className="text-right border font-bold min-w-[120px] print:text-xs" style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>
                   کلاس
                 </TableHead>
-                {monthDays.map((day) => (
+                {paginatedDays.map((day) => (
                   <TableHead 
                     key={day.toISOString()} 
                     className="text-center border font-bold min-w-[50px] print:min-w-[40px] print:text-xs"
@@ -144,7 +211,7 @@ export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
               {filteredStudents.length === 0 ? (
                 <TableRow>
                   <TableCell 
-                    colSpan={monthDays.length + 3} 
+                    colSpan={paginatedDays.length + 3} 
                     className="text-center py-8 text-muted-foreground"
                     style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}
                   >
@@ -163,12 +230,14 @@ export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
                     <TableCell className="text-right border text-sm text-muted-foreground print:text-xs">
                       {classes.find(c => c.id === student.class_id)?.name || "-"}
                     </TableCell>
-                    {monthDays.map((day) => {
+                    {paginatedDays.map((day) => {
                       const status = getAttendanceStatus(student.id, day);
                       return (
                         <TableCell 
                           key={day.toISOString()} 
-                          className={`text-center border font-bold text-lg print:text-sm ${status ? getStatusColor(status) : ''}`}
+                          className={`text-center border font-bold text-lg print:text-sm ${status ? getStatusColor(status) : ''} ${isAdmin ? 'cursor-pointer hover:bg-muted/50' : ''} print:cursor-default`}
+                          onClick={() => handleMarkAttendance(student.id, day)}
+                          title={isAdmin ? "Click to mark attendance / حاضری لگانے کے لیے کلک کریں" : ""}
                         >
                           {status ? getStatusSymbol(status) : "-"}
                         </TableCell>
