@@ -1,6 +1,3 @@
----
-deployment:
-  tasks:
     - export DEPLOYPATH=/home/mamfss/public_html/
     - /bin/rm -rf $DEPLOYPATH/*
     - /bin/cp -R * $DEPLOYPATH
