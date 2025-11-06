@@ -1,3 +1,6 @@
-git add .cpanel.yml
-git commit -m "Add cPanel deploy config"
-git push origin main
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/mamfss/public_html/
+    - /bin/rm -rf $DEPLOYPATH/*
+    - /bin/cp -R * $DEPLOYPATH
