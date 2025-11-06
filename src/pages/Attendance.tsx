@@ -215,6 +215,7 @@ export default function Attendance() {
         onBulkSave={handleBulkSave}
         students={students}
         classes={classes}
+        existingAttendance={attendance}
       />
     </>
   );

@@ -19,6 +19,7 @@ interface AttendanceDialogProps {
   attendance?: Attendance;
   students: Student[];
   classes: Class[];
+  existingAttendance: Attendance[];
 }
 
 export function AttendanceDialog({
@@ -29,6 +30,7 @@ export function AttendanceDialog({
   attendance,
   students,
   classes,
+  existingAttendance,
 }: AttendanceDialogProps) {
   const [mode, setMode] = useState<"single" | "bulk">("single");
   const [formData, setFormData] = useState({
@@ -36,12 +38,12 @@ export function AttendanceDialog({
     class_id: "",
     student_id: "",
     status: "present",
-    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+    time: "صبح",
   });
   const [bulkFormData, setBulkFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     status: "present",
-    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+    time: "صبح",
     selectedStudents: [] as string[],
   });
 
@@ -62,12 +64,12 @@ export function AttendanceDialog({
         class_id: "",
         student_id: "",
         status: "present",
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        time: "صبح",
       });
       setBulkFormData({
         date: new Date().toISOString().split('T')[0],
         status: "present",
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        time: "صبح",
         selectedStudents: [],
       });
     }
@@ -153,6 +155,19 @@ export function AttendanceDialog({
     }));
   };
 
+  // Filter students who already have attendance for selected date and time
+  const getAvailableStudents = (date: string, time: string) => {
+    return students.filter(student => {
+      const hasAttendance = existingAttendance.some(
+        att => att.student_id === student.id && att.date === date && att.time === time
+      );
+      return !hasAttendance;
+    });
+  };
+
+  const availableStudentsForSingle = getAvailableStudents(formData.date, formData.time);
+  const availableStudentsForBulk = getAvailableStudents(bulkFormData.date, bulkFormData.time);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -187,13 +202,18 @@ export function AttendanceDialog({
                     <SelectValue placeholder="Select student" />
                   </SelectTrigger>
                   <SelectContent>
-                    {students.map((student) => (
+                    {availableStudentsForSingle.map((student) => (
                       <SelectItem key={student.id} value={student.id}>
                         {student.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {availableStudentsForSingle.length === 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    All students have attendance marked for this time
+                  </p>
+                )}
               </div>
               <div>
                 <Label htmlFor="class_id">Class / کلاس</Label>
@@ -225,13 +245,18 @@ export function AttendanceDialog({
                 </Select>
               </div>
               <div>
-                <Label htmlFor="time">Time / وقت</Label>
-                <Input
-                  id="time"
-                  type="time"
-                  value={formData.time}
-                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                />
+                <Label htmlFor="time">Time / وقت *</Label>
+                <Select value={formData.time} onValueChange={(value) => setFormData({ ...formData, time: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="صبح">صبح (Morning)</SelectItem>
+                    <SelectItem value="دوپہر">دوپہر (Afternoon)</SelectItem>
+                    <SelectItem value="شام">شام (Evening)</SelectItem>
+                    <SelectItem value="رات">رات (Night)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
@@ -269,13 +294,18 @@ export function AttendanceDialog({
                 </Select>
               </div>
               <div>
-                <Label htmlFor="bulk-time">Time / وقت</Label>
-                <Input
-                  id="bulk-time"
-                  type="time"
-                  value={bulkFormData.time}
-                  onChange={(e) => setBulkFormData({ ...bulkFormData, time: e.target.value })}
-                />
+                <Label htmlFor="bulk-time">Time / وقت *</Label>
+                <Select value={bulkFormData.time} onValueChange={(value) => setBulkFormData({ ...bulkFormData, time: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="صبح">صبح (Morning)</SelectItem>
+                    <SelectItem value="دوپہر">دوپہر (Afternoon)</SelectItem>
+                    <SelectItem value="شام">شام (Evening)</SelectItem>
+                    <SelectItem value="رات">رات (Night)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -290,10 +320,12 @@ export function AttendanceDialog({
                   </div>
                 </div>
                 <div className="border rounded-lg p-4 max-h-64 overflow-y-auto space-y-2">
-                  {students.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-4">No students available</p>
+                  {availableStudentsForBulk.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      All students have attendance marked for this date and time
+                    </p>
                   ) : (
-                    students.map((student) => (
+                    availableStudentsForBulk.map((student) => (
                       <div key={student.id} className="flex items-center space-x-2">
                         <Checkbox
                           id={`student-${student.id}`}
