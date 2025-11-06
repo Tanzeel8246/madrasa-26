@@ -7,7 +7,7 @@ import { useState, useMemo } from "react";
 import { useStudents } from "@/hooks/useStudents";
 import { useClasses } from "@/hooks/useClasses";
 import { useAttendance } from "@/hooks/useAttendance";
-import { startOfMonth, endOfMonth, eachDayOfInterval, format } from "date-fns";
+import { startOfMonth, endOfMonth, eachDayOfInterval, format, setMonth, setYear } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -48,16 +48,36 @@ const getStatusColor = (status: string) => {
 export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
   const [selectedClassId, setSelectedClassId] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [displayDate, setDisplayDate] = useState<Date>(selectedDate);
   const { students } = useStudents();
   const { classes } = useClasses();
   const { isAdmin } = useAuth();
+
+  // Generate month and year options
+  const months = [
+    { value: "0", label: "جنوری / January" },
+    { value: "1", label: "فروری / February" },
+    { value: "2", label: "مارچ / March" },
+    { value: "3", label: "اپریل / April" },
+    { value: "4", label: "مئی / May" },
+    { value: "5", label: "جون / June" },
+    { value: "6", label: "جولائی / July" },
+    { value: "7", label: "اگست / August" },
+    { value: "8", label: "ستمبر / September" },
+    { value: "9", label: "اکتوبر / October" },
+    { value: "10", label: "نومبر / November" },
+    { value: "11", label: "دسمبر / December" },
+  ];
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
   
   // Get all days in the selected month
   const monthDays = useMemo(() => {
-    const start = startOfMonth(selectedDate);
-    const end = endOfMonth(selectedDate);
+    const start = startOfMonth(displayDate);
+    const end = endOfMonth(displayDate);
     return eachDayOfInterval({ start, end });
-  }, [selectedDate]);
+  }, [displayDate]);
 
   // Split days into pages of 10 days each
   const daysPerPage = 10;
@@ -127,59 +147,120 @@ export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
   };
 
   const handlePrint = () => {
+    // Add print-specific class to body
+    document.body.classList.add('printing-register');
     window.print();
+    // Remove class after print dialog closes
+    setTimeout(() => {
+      document.body.classList.remove('printing-register');
+    }, 1000);
+  };
+
+  const handleMonthChange = (monthValue: string) => {
+    const newDate = setMonth(displayDate, parseInt(monthValue));
+    setDisplayDate(newDate);
+    setCurrentPage(1);
+  };
+
+  const handleYearChange = (yearValue: string) => {
+    const newDate = setYear(displayDate, parseInt(yearValue));
+    setDisplayDate(newDate);
+    setCurrentPage(1);
   };
 
   return (
-    <Card className="w-full overflow-hidden">
-      <CardHeader className="bg-primary text-primary-foreground print:bg-primary print:text-primary-foreground">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:flex-row">
-          <div className="text-right w-full sm:w-auto">
-            <CardTitle className="text-2xl font-bold" style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>
-              حاضری رجسٹر
-            </CardTitle>
-            <p className="text-sm opacity-90 mt-1">
-              {format(selectedDate, 'MMMM yyyy')} - ماہ (صفحہ {currentPage} از {totalPages})
-            </p>
-          </div>
-          <div className="flex gap-2 print:hidden w-full sm:w-auto">
-            <Select value={selectedClassId} onValueChange={setSelectedClassId}>
-              <SelectTrigger className="w-[200px] bg-background text-foreground">
-                <SelectValue placeholder="Select Class" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">تمام کلاسیں</SelectItem>
-                {classes.map((cls) => (
-                  <SelectItem key={cls.id} value={cls.id}>
-                    {cls.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex gap-1">
-              <Button 
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                variant="outline" 
-                size="icon"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button 
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                variant="outline" 
-                size="icon"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
+    <>
+      <style>{`
+        @media print {
+          body.printing-register > *:not(.print-register-container) {
+            display: none !important;
+          }
+          body.printing-register .print-register-container {
+            display: block !important;
+          }
+          .print-register-container {
+            margin: 0;
+            padding: 0;
+          }
+        }
+      `}</style>
+      <Card className="w-full overflow-hidden print-register-container">
+        <CardHeader className="bg-primary text-primary-foreground print:bg-primary print:text-primary-foreground">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:flex-row">
+            <div className="text-right w-full sm:w-auto">
+              <CardTitle className="text-2xl font-bold" style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>
+                حاضری رجسٹر
+              </CardTitle>
+              <p className="text-sm opacity-90 mt-1">
+                {format(displayDate, 'MMMM yyyy')} - ماہ (صفحہ {currentPage} از {totalPages})
+              </p>
             </div>
-            <Button onClick={handlePrint} variant="outline" size="icon">
-              <Printer className="h-4 w-4" />
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 print:hidden w-full sm:w-auto">
+              <div className="flex gap-2">
+                <Select value={displayDate.getMonth().toString()} onValueChange={handleMonthChange}>
+                  <SelectTrigger className="w-[180px] bg-background text-foreground">
+                    <SelectValue placeholder="ماہ منتخب کریں" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map((month) => (
+                      <SelectItem key={month.value} value={month.value}>
+                        {month.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={displayDate.getFullYear().toString()} onValueChange={handleYearChange}>
+                  <SelectTrigger className="w-[120px] bg-background text-foreground">
+                    <SelectValue placeholder="سال" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2">
+                <Select value={selectedClassId} onValueChange={setSelectedClassId}>
+                  <SelectTrigger className="w-[180px] bg-background text-foreground">
+                    <SelectValue placeholder="کلاس منتخب کریں" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">تمام کلاسیں</SelectItem>
+                    {classes.map((cls) => (
+                      <SelectItem key={cls.id} value={cls.id}>
+                        {cls.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex gap-1">
+                  <Button 
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    variant="outline" 
+                    size="icon"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    variant="outline" 
+                    size="icon"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button onClick={handlePrint} variant="secondary" size="icon">
+                  <Printer className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table className="border-collapse" dir="rtl">
@@ -273,5 +354,6 @@ export function AttendanceRegister({ selectedDate }: AttendanceRegisterProps) {
         </div>
       </CardContent>
     </Card>
+    </>
   );
 }
