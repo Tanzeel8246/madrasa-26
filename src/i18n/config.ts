@@ -14,6 +14,7 @@ const resources = {
       learningReport: 'Learning Report',
       fees: 'Fees',
       income: 'Income',
+      expenses: 'Expenses',
       userRoles: 'User Roles',
       
       // Common
@@ -160,6 +161,7 @@ const resources = {
       learningReport: 'تعلیمی رپورٹ',
       fees: 'فیسیں',
       income: 'آمد',
+      expenses: 'خرچ',
       userRoles: 'صارف کے کردار',
       
       // Common

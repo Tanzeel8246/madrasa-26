@@ -226,6 +226,57 @@ export type Database = {
           },
         ]
       }
+      expenses: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          created_by: string | null
+          date: string
+          description: string | null
+          expense_type: string
+          id: string
+          madrasa_name: string | null
+          payment_method: string | null
+          receipt_number: string | null
+          recipient_contact: string | null
+          recipient_name: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          description?: string | null
+          expense_type: string
+          id?: string
+          madrasa_name?: string | null
+          payment_method?: string | null
+          receipt_number?: string | null
+          recipient_contact?: string | null
+          recipient_name: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          description?: string | null
+          expense_type?: string
+          id?: string
+          madrasa_name?: string | null
+          payment_method?: string | null
+          receipt_number?: string | null
+          recipient_contact?: string | null
+          recipient_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       fees: {
         Row: {
           academic_year: string
