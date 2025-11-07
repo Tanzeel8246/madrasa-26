@@ -271,6 +271,54 @@ export type Database = {
         }
         Relationships: []
       }
+      income: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          date: string
+          donor_contact: string | null
+          donor_name: string
+          frequency: string
+          id: string
+          income_type: string
+          madrasa_name: string | null
+          notes: string | null
+          receipt_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          donor_contact?: string | null
+          donor_name: string
+          frequency: string
+          id?: string
+          income_type: string
+          madrasa_name?: string | null
+          notes?: string | null
+          receipt_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          donor_contact?: string | null
+          donor_name?: string
+          frequency?: string
+          id?: string
+          income_type?: string
+          madrasa_name?: string | null
+          notes?: string | null
+          receipt_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null

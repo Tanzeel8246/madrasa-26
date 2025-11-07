@@ -14,6 +14,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
   isAdmin: boolean;
+  userRole: string | null;
   madrasaName: string | null;
   logoUrl: string | null;
 }
@@ -25,6 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [madrasaName, setMadrasaName] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -66,23 +68,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAdminRole = async (userId: string) => {
     try {
-      // Check if user has admin role
+      // Check user roles (can have multiple roles)
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .maybeSingle();
+        .eq('user_id', userId);
       
-      console.log('Checking admin role for user:', userId);
+      console.log('Checking roles for user:', userId);
       console.log('Role data:', roleData, 'Error:', roleError);
       
-      if (!roleError && roleData) {
-        console.log('User is admin!');
-        setIsAdmin(true);
+      if (!roleError && roleData && roleData.length > 0) {
+        // Set the first role (or prioritize admin)
+        const hasAdmin = roleData.some(r => r.role === 'admin');
+        const hasTeacher = roleData.some(r => r.role === 'teacher');
+        
+        if (hasAdmin) {
+          setIsAdmin(true);
+          setUserRole('admin');
+        } else if (hasTeacher) {
+          setIsAdmin(false);
+          setUserRole('teacher');
+        } else {
+          setIsAdmin(false);
+          setUserRole(roleData[0].role);
+        }
       } else {
-        console.log('User is not admin');
+        console.log('User has no roles');
         setIsAdmin(false);
+        setUserRole(null);
       }
 
       // Fetch madrasa name and logo from profile
@@ -203,7 +216,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signUp, signIn, signInWithGoogle, signOut, resetPassword, isAdmin, madrasaName, logoUrl }}>
+    <AuthContext.Provider value={{ user, session, isLoading, signUp, signIn, signInWithGoogle, signOut, resetPassword, isAdmin, userRole, madrasaName, logoUrl }}>
       {children}
     </AuthContext.Provider>
   );

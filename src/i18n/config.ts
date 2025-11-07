@@ -13,6 +13,7 @@ const resources = {
       courses: 'Courses',
       learningReport: 'Learning Report',
       fees: 'Fees',
+      income: 'Income',
       userRoles: 'User Roles',
       
       // Common
@@ -158,6 +159,7 @@ const resources = {
       courses: 'کورسز',
       learningReport: 'تعلیمی رپورٹ',
       fees: 'فیسیں',
+      income: 'آمد',
       userRoles: 'صارف کے کردار',
       
       // Common
