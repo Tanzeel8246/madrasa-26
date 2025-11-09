@@ -57,6 +57,5 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
-    direction: rtl;
   }
 }

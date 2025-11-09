@@ -18,6 +18,22 @@ const resources = {
       settings: 'ترتیبات',
     },
   },
+  en: {
+    translation: {
+      dashboard: 'Dashboard',
+      students: 'Students',
+      teachers: 'Teachers',
+      classes: 'Classes',
+      courses: 'Courses',
+      attendance: 'Attendance',
+      fees: 'Fees',
+      income: 'Income',
+      expenses: 'Expenses',
+      financialReports: 'Financial Reports',
+      educationReports: 'Education Reports',
+      settings: 'Settings',
+    },
+  },
 };
 
 i18n
