@@ -12,9 +12,9 @@ export const Layout = ({ children }: LayoutProps) => {
   const { isRTL } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex" dir={isRTL ? 'rtl' : 'ltr'}>
       <AppSidebar />
-      <main className={`flex-1 ${isRTL ? 'mr-64' : 'ml-64'} p-6`}>
+      <main className={`flex-1 ${isRTL ? 'mr-64' : 'ml-64'} p-6 transition-all duration-300`}>
         {children}
       </main>
     </div>

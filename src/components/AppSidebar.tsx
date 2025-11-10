@@ -40,9 +40,9 @@ export const AppSidebar = () => {
   ];
 
   return (
-    <aside className={`fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 bg-card border-${isRTL ? 'l' : 'r'} border-border flex flex-col`}>
+    <aside className={`fixed top-0 ${isRTL ? 'right-0' : 'left-0'} h-screen w-64 bg-card ${isRTL ? 'border-l' : 'border-r'} border-border flex flex-col transition-all duration-300`}>
       <div className="p-6 border-b border-border">
-        <h1 className="text-2xl font-bold text-primary">Madrasa System</h1>
+        <h1 className={`text-2xl font-bold text-primary ${isRTL ? 'text-right' : 'text-left'}`}>Madrasa System</h1>
       </div>
       
       <nav className="flex-1 overflow-y-auto p-4">
@@ -58,10 +58,10 @@ export const AppSidebar = () => {
                 isActive 
                   ? 'bg-primary text-primary-foreground' 
                   : 'hover:bg-accent text-foreground'
-              }`}
+              } ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}
             >
               <Icon className="w-5 h-5" />
-              <span>{item.title}</span>
+              <span className={isRTL ? 'text-right' : 'text-left'}>{item.title}</span>
             </button>
           );
         })}
@@ -71,7 +71,7 @@ export const AppSidebar = () => {
         <Button
           onClick={toggleLanguage}
           variant="outline"
-          className="w-full flex items-center gap-2"
+          className={`w-full flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}
         >
           <Languages className="w-4 h-4" />
           <span>{language === 'ur' ? 'English' : 'اردو'}</span>
